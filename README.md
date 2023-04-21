@@ -1,4 +1,34 @@
-# IT5100B 2023 - Project 2
+# Scala Kafka
+
+## Implementation Notes
+1. Open new tab/window 1
+2. docker run --rm -d --name zookeeper-server -p 2181:2181 -p 2888:2888 -p 3888:3888 -p 8080:8080 -e ALLOW_ANONYMOUS_LOGIN=yes -e ZOOKEEPER_CLIENT_PORT=2181 confluentinc/cp-zookeeper
+3. docker run --rm -d --name kafka-server -p 9092:9092 -e ALLOW_PLAINTEXT_LISTENER=yes -e KAFKA_ZOOKEEPER_CONNECT=192.168.1.176:2181 -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 confluentinc/cp-kafka
+4. docker run -d --name postgres -e POSTGRESQL_USER=scalauser -e POSTGRESQL_PASSWORD=abc123 -e POSTGRESQL_DATABASE=myapp -p 5432:5432 centos/postgresql-12-centos8
+5. docker exec -it myapp /bin/bash 
+6. psql -U postgres -d postgres
+7. ALTER USER postgres WITH PASSWORD 'abc123';
+8. Open new tab/window 2
+9. docker exec -it myapp /bin/bash
+10. kafka-console-consumer --bootstrap-server localhost:9092 --topic events
+11. Open new tab/window 3
+12. docker exec -it kafka-server /bin/bash
+13. kafka-console-consumer --bootstrap-server localhost:9092 --topic bee-counts
+14. Open new tab/window 4
+15. docker exec -it kafka-server /bin/bash
+16. kafka-console-consumer --bootstrap-server localhost:9092 --topic long-distance-travellers
+17. In GenerateBeeFlight.scala, W and H arguments can be set. Can consider to set W=1, H=1 and no. of bees = 2 for ease of testing and observation. Note the position of "NOTE" comment showing where the W, H arguments can be set.
+18. In CountBeeLandings.scala, T argument can be set. Note the position of "NOTE" comment showing where the T argument can be set.
+19. In LongDistanceFlyers.scala, K argument can be set. Note the position of "NOTE" comment showing where the K argument can be set.
+20. Open src/main/scala/Main.scala
+21. Run Main.scala
+22. Observe Kafka output on Window 2 for GenerateBeeFlight.scala (screenshot2.png)
+23. Observe Kafka output on Window 3 for CountBeeLandings.scala, output only appears at the end of time window for all squares, according to readme instructions. There might be some processing lag at the start hence it is best to let the program run a bit to stabilise the T interval output (screenshot3.png)
+24. Observe Kafka output on Window 4 for LongDistanceFlyers.scala, output is independent of time window and appears once a bee guid has met criteria, according to readme instructions (screenshot4.png)
+25. Observe table created in Window 1 with command \d
+26. Observe bee guid saved in database with command SELECT * FROM longdistancetravellers; after sufficient number of records output relative to K (screenshot1.png)
+27. Run TestCountBeeLandings.scala where CountBeeLandings is tested with expected input where the count of x,y coordinates in input records corresponds with the count of x,y coordinates in the expected output records (screenshot5.png)
+28. Run TestLongDistanceFlyers.scala where LongDistanceFlyers is tested with expected input where records of bee guid is reflected in the guid in the expected output once K squares have been exceeded (screenshot6.png)
 
 ## Problem Statement
 
@@ -82,5 +112,3 @@ and the coordinates of the landing point, all in CSV format.
     in a Postgres DB.
 
     * Place your code into the `SaveLongDistanceFlyers.scala` file.
-
-Do not forget to write tests that prove that your code is working properly.
